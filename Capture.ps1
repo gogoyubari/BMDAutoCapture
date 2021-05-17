@@ -1,27 +1,5 @@
-function Test-FileLock {
-    param (
-        [parameter(Mandatory = $true)][string]$Path
-    )
-  
-    $oFile = New-Object System.IO.FileInfo $Path
-  
-    if ((Test-Path -Path $Path) -eq $false) {
-        return $false
-    }
-  
-    try {
-        $oStream = $oFile.Open([System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
-  
-        if ($oStream) {
-            $oStream.Close()
-        }
-        return $false
-    }
-    catch {
-        # file is locked by a process.
-        return $true
-    }
-}
+Import-Module $PSScriptRoot\Start-ffplay.ps1
+Import-Module $PSScriptRoot\Test-FileLock.ps1
 
 add-type -AssemblyName microsoft.VisualBasic
 add-type -AssemblyName System.Windows.Forms
@@ -34,15 +12,7 @@ foreach ($process in $ps) {
     Wait-Process -Id $process.Id
 }
 
-# Restart ffplay
-$ps = Get-Process -Name ffplay -ErrorAction SilentlyContinue
-foreach ($process in $ps) {
-    Stop-Process -Id $process.Id
-}
-$arg = "-fflags nobuffer -analyzeduration 500000 -f lavfi -i `"amovie='udp\:\/\/224.1.1.1\:10001',showvolume=f=0:w=720:dm=1:h=10:p=1`" -top 405 -left 1200 -alwaysontop -noborder -hide_banner"
-Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Minimized
-$arg = "-fflags nobuffer -analyzeduration 500000 -i udp://224.1.1.1:10001 -top 0 -left 1200 -x 720 -alwaysontop -noborder -hide_banner"
-Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Minimized
+Start-ffplay -Width 720
 
 # Start bmd_h264_cat
 $dir = "C:\Data"
