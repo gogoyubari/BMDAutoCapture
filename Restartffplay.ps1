@@ -1,2 +1,18 @@
-Import-Module $PSScriptRoot\Start-ffplay.ps1
-Start-ffplay -Width 720
+$ps = Get-Process -Name ffplay -ErrorAction SilentlyContinue
+foreach ($process in $ps) {
+    Stop-Process -Id $process.Id
+}
+
+<#
+showvolume
+    'f' Set fade, allowed range is [0, 1].
+    'w' Set channel width, allowed range is [80, 8192].
+    'h' Set channel height, allowed range is [1, 900].
+    'dm' In second. If set to > 0., display a line for the max level in the previous seconds.  
+    'p' Set background opacity, allowed range is [0, 1].
+#>
+$width = 720
+$arg = "-fflags nobuffer -analyzeduration 500000 -f lavfi -i `"amovie='udp\:\/\/224.1.1.1\:10001',showvolume=f=0:w=$width`:h=10:dm=1:p=1`" -top $($width/16*9) -left $(1920-$width) -alwaysontop -noborder -hide_banner"
+Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Minimized
+$arg = "-fflags nobuffer -analyzeduration 500000 -i udp://224.1.1.1:10001 -top 0 -left $(1920-$width) -x $width -alwaysontop -noborder -hide_banner"
+Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Minimized
