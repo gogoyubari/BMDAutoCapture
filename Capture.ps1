@@ -28,7 +28,7 @@ $prefix = "j-PVW_"
 $date = Get-Date -Format yyyyMMdd-HHmmss
 $ffmpeg = "$PSScriptRoot\ffmpeg.exe -i - -c copy $prefix$date.mp4"
 $dir = "C:\Data"
-Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$udp $preset - | $ffmpeg" -WorkingDirectory $dir
+Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$udp $preset - | $ffmpeg" -WorkingDirectory $dir -NoNewWindow
 
 <#
 showvolume
@@ -40,6 +40,6 @@ showvolume
 #>
 $width = 720
 $arg = "-fflags nobuffer -analyzeduration 500000 -f lavfi -i amovie=udp\\://224.1.1.1\\:10001,showvolume=f=0:w=$width`:h=10:dm=1:p=1 -top $($width/16*9) -left $(1920-$width) -alwaysontop -noborder"
-Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Minimized
+Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Hidden
 $arg = "-fflags nobuffer -analyzeduration 500000 -i udp://224.1.1.1:10001 -top 0 -left $(1920-$width) -x $width -alwaysontop -noborder"
-Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Minimized
+Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Hidden
