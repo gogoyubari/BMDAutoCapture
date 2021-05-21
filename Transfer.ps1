@@ -26,7 +26,7 @@ function Test-FileLock {
 Import-Module BitsTransfer
 
 $srcdir = "C:\Data"
-Get-ChildItem $srcdir\*.mp4 | ForEach-Object {
+Get-ChildItem $srcdir\*.ts | ForEach-Object {
     if (!(Test-FileLock $_)) {
         try {
             $dstdir = "\\TS5800D3208\share"
