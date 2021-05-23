@@ -40,9 +40,9 @@ else {
         'p' Set background opacity, allowed range is [0, 1].
     #>
     $width = 720
-    $graph = "amovie=udp\\://224.1.1.1\\:10001?timeout=1,showvolume=f=0:w=$width`:h=10:dm=1:p=1"
+    $graph = "amovie=udp\\://224.1.1.1\\:10001?timeout=3000000,showvolume=f=0:w=$width`:h=10:dm=1:p=1"
     $arg = "-fflags nobuffer -analyzeduration 500000 -f lavfi -i $graph -top $($width/16*9) -left $(1920-$width) -alwaysontop -noborder"
     Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Hidden
-    $arg = "-fflags nobuffer -analyzeduration 500000 -i udp://224.1.1.1:10001?timeout=1 -top 0 -left $(1920-$width) -x $width -alwaysontop -noborder"
+    $arg = "-fflags nobuffer -analyzeduration 500000 -i udp://224.1.1.1:10001?timeout=3000000 -top 0 -left $(1920-$width) -x $width -alwaysontop -noborder"
     Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Hidden
 }
