@@ -1,5 +1,32 @@
+function Test-FileLock {
+    param (
+        [parameter(Mandatory = $true)][string]$Path
+    )
+  
+    $oFile = New-Object System.IO.FileInfo $Path
+  
+    if ((Test-Path -Path $Path) -eq $false) {
+        return $false
+    }
+  
+    try {
+        $oStream = $oFile.Open([System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+  
+        if ($oStream) {
+            $oStream.Close()
+        }
+        return $false
+    }
+    catch {
+        # file is locked by a process.
+        return $true
+    }
+}
+
 add-type -AssemblyName microsoft.VisualBasic
 add-type -AssemblyName System.Windows.Forms
+
+$dir = "C:\Data"
 
 $ps = Get-Process -Name bmd_h264_cat -ErrorAction SilentlyContinue
 if ($ps) {
@@ -7,6 +34,20 @@ if ($ps) {
     foreach ($process in $ps) {
         [Microsoft.VisualBasic.Interaction]::AppActivate($process.Id)
         [System.Windows.Forms.SendKeys]::SendWait("S")
+    }
+
+    Start-Sleep 1
+    $unlock = $false
+    Get-ChildItem $dir\*.ts | ForEach-Object {
+        if (!(Test-FileLock $_)) {
+            $unlock = $true
+        }
+    }
+    if (!$unlock) {
+        foreach ($process in $ps) {
+            Stop-Process -Id $process.Id
+        }
+        .\SplitCapture.ps1
     }    
 }
 else {
@@ -23,8 +64,7 @@ else {
     #------
     $file = "-segment $prefix%Y%m%d-%H%M%S.ts"
     $udp = "-udp-host 224.1.1.1 -udp-port 10001"
-    $dir = "C:\Data"
-    Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$preset $file $udp" -WorkingDirectory $dir -NoNewWindow
+    Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$preset $file $udp" -WorkingDirectory $dir
 
     # Restart ffplay
     $ps = Get-Process -Name ffplay -ErrorAction SilentlyContinue
