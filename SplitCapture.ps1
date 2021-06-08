@@ -64,7 +64,7 @@ else {
     #------
     $file = "-segment $prefix%Y%m%d-%H%M%S.ts"
     $udp = "-udp-host 224.1.1.1 -udp-port 10001"
-    Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$preset $file $udp" -WorkingDirectory $dir
+    Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$preset $file $udp" -WorkingDirectory $dir -NoNewWindow
 
     # Restart ffplay
     $ps = Get-Process -Name ffplay -ErrorAction SilentlyContinue
