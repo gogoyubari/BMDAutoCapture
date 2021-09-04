@@ -10,7 +10,10 @@ $prefix = "j-PVW_"
 #$prefix = "US-PVW_"
 #$prefix = "US-OA_"
 #------
-$split = "-time-split `"*/2 * * * *`""
+#$split = "-time-split `"0 * * * *`""
+#$split = "-time-split `"59 * * * *`""
+#$split = "-time-split `"0,30 * * * *`""
+$split = "-time-split `"29,59 * * * *`""
 #------
 $file = "-segment $prefix%Y%m%d-%H%M%S.ts"
 $udp = "-udp-host 224.1.1.1 -udp-port 10001"
