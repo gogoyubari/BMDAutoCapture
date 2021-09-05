@@ -1,21 +1,8 @@
-add-type -AssemblyName microsoft.VisualBasic
-add-type -AssemblyName System.Windows.Forms
+$dir = "C:\Data"
 
-$ps = Get-Process -Name bmd_h264_cat -ErrorAction SilentlyContinue
-foreach ($process in $ps) {
-    [Microsoft.VisualBasic.Interaction]::AppActivate($process.Id)
-    [System.Windows.Forms.SendKeys]::SendWait("{ESC}")
-}
-
-$ps = Get-Process -Name ffplay -ErrorAction SilentlyContinue
-foreach ($process in $ps) {
-    Stop-Process -Id $process.Id
-}
-    
 #------
 $preset = "-preset `"YouTube 720p`" -vb 2400"
 #$preset = "-preset `"Native (Progressive)`" -vb 5500"
-#------
 #------
 $prefix = "j-PVW_"
 #$prefix = "j-LIVE_"
@@ -23,13 +10,23 @@ $prefix = "j-PVW_"
 #$prefix = "US-PVW_"
 #$prefix = "US-OA_"
 #------
-$file = "$prefix$(Get-Date -Format yyyyMMdd-HHmmss).ts"
+#$split = "-cron `"0 0 * * * *`""
+#$split = "-cron `"0 59 * * * *`""
+#$split = "-cron `"0 0,30 * * * *`""
+$split = "-cron `"0 29,59 * * * *`""
+#------
+$file = "-savesegment $prefix%Y%m%d-%H%M%S.ts"
 $udp = "-udp-host 224.1.1.1 -udp-port 10001"
-$dir = "C:\Data"
-Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$preset $file $udp" -WorkingDirectory $dir -NoNewWindow
+Start-Process -FilePath $PSScriptRoot\bmd_h264_cat.exe -ArgumentList "$preset $file $split $udp" -WorkingDirectory $dir -NoNewWindow
 
+
+
+$ps = Get-Process -Name ffplay -ErrorAction SilentlyContinue
+foreach ($process in $ps) {
+    Stop-Process -Id $process.Id
+}
 <#
-showvolume
+showvolume params:
     'f' Set fade, allowed range is [0, 1].
     'w' Set channel width, allowed range is [80, 8192].
     'h' Set channel height, allowed range is [1, 900].
@@ -42,3 +39,5 @@ $arg = "-fflags nobuffer -analyzeduration 500000 -f lavfi -i $graph -top $($widt
 Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Hidden
 $arg = "-fflags nobuffer -analyzeduration 500000 -i udp://224.1.1.1:10001?timeout=3000000 -top 0 -left $(1920-$width) -x $width -alwaysontop -noborder"
 Start-Process -FilePath $PSScriptRoot\ffplay.exe -ArgumentList $arg -WindowStyle Hidden
+
+
