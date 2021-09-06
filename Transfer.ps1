@@ -26,23 +26,28 @@ function Test-FileLock {
 Import-Module BitsTransfer
 
 $srcdir = "C:\Data"
+$destdirs = (
+    "\\TS5800D3208\share",
+    "\\TS5800D2408-01\share",
+    "\\TS5800D2408-02\share",
+    "\\TS-8VH01\share",
+    "\\TS-8VH02\share",
+    "\\TS-RX01\share",
+    "\\TS-RX02\share"
+)
 Get-ChildItem $srcdir\*.ts | ForEach-Object {
     if (!(Test-FileLock $_)) {
+        $src = $_
         try {
-            $dstdir = "\\TS5800D3208\share"
-            Start-BitsTransfer -Source $_ -Destination $dstdir `
-                -Description "$($_.Name) -> $dstdir" -ErrorAction Stop
-
-            $dstdir = "\\TS5800D2408-01\share"
-            #$dstdir = "\\TS-8VH01\share"
-            #$dstdir = "\\TS-RX01\share"
-            Start-BitsTransfer -Source $_ -Destination $dstdir `
-                -Description "$($_.Name) -> $dstdir" -ErrorAction Stop
-
+            $destdirs | ForEach-Object {
+                Write-Host "$src($.Name) -> $_"
+                Start-BitsTransfer -Source $src -Destination $_ `
+                -Description "$src($.Name) -> $_" -ErrorAction Stop
+            }
             Remove-Item $_
         }
         catch {
-            Write-Host "Start-BitsTransfer exception"
+            Write-Host "Start-BitsTransfer exception: $src"
         }
     }
 }
